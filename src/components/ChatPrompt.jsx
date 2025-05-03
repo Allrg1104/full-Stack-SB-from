@@ -49,7 +49,7 @@ const ChatPrompt = () => {
       setConversations(newConversations)
       setPrompt('')
 
-      const res = await axios.post('https://oscar-gpt-back.vercel.app/api/chat', { prompt })
+      const res = await axios.post('https://edificios-back.vercel.app/api/chat', { prompt })
       setConversations([
         ...newConversations,
         { role: 'assistant', content: res.data.response }
