@@ -2,86 +2,119 @@ import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import { FaPaperPlane, FaRobot, FaUser } from 'react-icons/fa'
 
+const edificios = [
+  'Edificio 1', 'Edificio 2', 'Edificio 3', 'Edificio 4',
+  'Edificio 5', 'Edificio 6', 'Edificio 7', 'Edificio 8'
+]
+
+const salonesPorEdificio = {
+  'Edificio 1': ['Salón 101', 'Salón 102'],
+  'Edificio 2': ['Salón 201', 'Salón 202'],
+  'Edificio 3': ['Salón 301', 'Salón 302'],
+  'Edificio 4': ['Salón 401', 'Salón 402'],
+  'Edificio 5': ['Salón 501', 'Salón 502'],
+  'Edificio 6': ['Salón 601', 'Salón 602'],
+  'Edificio 7': ['Salón 701', 'Salón 702'],
+  'Edificio 8': ['Salón 801', 'Salón 802']
+}
+
 const ChatPrompt = () => {
   const [prompt, setPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState([])
+  const [edificioSeleccionado, setEdificioSeleccionado] = useState('')
   const conversationsEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // Auto-scroll cuando hay nuevos mensajes
   useEffect(() => {
     if (conversationsEndRef.current) {
       conversationsEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [conversations])
 
-  // Agregar manejador de tecla Enter
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevenir el salto de línea por defecto
-      handleSubmit(e); // Enviar el mensaje
+      e.preventDefault()
+      handleSubmit(e)
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
     if (!prompt.trim()) return
-    
+
     try {
       setIsLoading(true)
-      
-      // Agregar el prompt del usuario a las conversaciones
-      const newConversations = [
-        ...conversations, 
-        { role: 'user', content: prompt }
-      ]
+      const newConversations = [...conversations, { role: 'user', content: prompt }]
       setConversations(newConversations)
-      setPrompt('') // Limpiar el input inmediatamente para mejor UX
-      
-      const res = await axios.post('https://chatgptback.vercel.app/api/chat', { prompt })
-      
-      // Agregar la respuesta de la IA a las conversaciones
+      setPrompt('')
+
+      const res = await axios.post('https://oscar-gpt-back.vercel.app/api/chat', { prompt })
       setConversations([
         ...newConversations,
         { role: 'assistant', content: res.data.response }
       ])
     } catch (error) {
-      console.error('Error al obtener respuesta:', error)
+      console.error('Error:', error)
       setConversations([
         ...conversations,
         { role: 'user', content: prompt },
-        { role: 'system', content: 'Lo siento, hubo un error al procesar tu solicitud. Por favor intenta de nuevo. 😕' }
+        { role: 'system', content: 'Lo siento, hubo un error. Intenta nuevamente. 😕' }
       ])
       setPrompt('')
     } finally {
       setIsLoading(false)
-      // Enfocar el textarea después de enviar
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
+      if (textareaRef.current) textareaRef.current.focus()
     }
   }
 
-  // Función para formatear el texto con saltos de línea
   const formatText = (text) => {
-    // Divide el texto en párrafos y los une con saltos de línea en JSX
     return text.split('\n').map((paragraph, i) => (
       <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
-    ));
-  };
+    ))
+  }
 
   return (
     <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-purple-200 mx-auto max-w-2xl">
-      {/* Header del chat */}
+      {/* Título */}
+      <div className="bg-white py-4 text-center border-b border-gray-200">
+        <h1 className="text-2xl font-bold text-purple-800">Javeriana</h1>
+      </div>
+
+      {/* Selector de edificio */}
+      <div className="px-4 py-2 bg-purple-50 border-b border-purple-200">
+        <label className="block mb-1 text-sm font-medium text-purple-700">Selecciona un edificio:</label>
+        <select
+          value={edificioSeleccionado}
+          onChange={(e) => setEdificioSeleccionado(e.target.value)}
+          className="w-full p-2 border border-purple-300 rounded-lg bg-white text-purple-800 shadow-sm"
+        >
+          <option value="">-- Selecciona un edificio --</option>
+          {edificios.map((edificio, i) => (
+            <option key={i} value={edificio}>{edificio}</option>
+          ))}
+        </select>
+
+        {edificioSeleccionado && (
+          <div className="mt-3">
+            <h3 className="font-semibold text-purple-800 mb-1">Salones disponibles:</h3>
+            <ul className="list-disc pl-5 text-purple-700">
+              {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
+                <li key={idx}>{salon}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Chat Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 text-center shadow-md">
         <h2 className="text-xl font-bold flex items-center justify-center">
           <FaRobot className="mr-2 text-purple-200" /> ChatGPT App
         </h2>
       </div>
-      
-      {/* Historial de conversaciones con mejor formateo - Altura fija */}
+
+      {/* Conversaciones */}
       <div className="h-[400px] overflow-y-auto p-4 bg-gradient-to-b from-purple-50 to-white">
         {conversations.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-gray-600">
@@ -94,19 +127,14 @@ const ChatPrompt = () => {
         ) : (
           <div className="space-y-5">
             {conversations.map((message, index) => (
-              <div 
-                key={index} 
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div 
-                  className={`max-w-[85%] p-3 rounded-2xl shadow-md ${
-                    message.role === 'user' 
-                      ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-tr-none' 
-                      : message.role === 'system'
-                        ? 'bg-red-100 text-red-700 border border-red-200'
-                        : 'bg-white text-gray-800 border border-purple-100 rounded-tl-none shadow-md'
-                  }`}
-                >
+              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[85%] p-3 rounded-2xl shadow-md ${
+                  message.role === 'user'
+                    ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-tr-none'
+                    : message.role === 'system'
+                      ? 'bg-red-100 text-red-700 border border-red-200'
+                      : 'bg-white text-gray-800 border border-purple-100 rounded-tl-none shadow-md'
+                }`}>
                   <div className="flex items-center mb-1 font-medium">
                     {message.role === 'user' ? (
                       <>
@@ -120,7 +148,7 @@ const ChatPrompt = () => {
                       </>
                     )}
                   </div>
-                  <div className={`whitespace-pre-wrap leading-relaxed text-sm md:text-base ${message.role === 'user' ? 'font-medium text-white' : ''}`}>
+                  <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
                     {formatText(message.content)}
                   </div>
                 </div>
@@ -129,7 +157,6 @@ const ChatPrompt = () => {
             <div ref={conversationsEndRef} />
           </div>
         )}
-        
         {isLoading && (
           <div className="flex justify-start mt-4">
             <div className="max-w-[85%] p-3 bg-white border border-purple-100 rounded-2xl rounded-tl-none shadow-md">
@@ -145,8 +172,8 @@ const ChatPrompt = () => {
           </div>
         )}
       </div>
-      
-      {/* Formulario para enviar el prompt - Botón debajo del texto */}
+
+      {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 bg-gradient-to-r from-purple-100 to-indigo-100 border-t border-purple-200">
         <div className="mb-2">
           <textarea
@@ -160,7 +187,6 @@ const ChatPrompt = () => {
             disabled={isLoading}
           />
         </div>
-        
         <div className="flex items-center">
           <button
             type="submit"
@@ -170,7 +196,6 @@ const ChatPrompt = () => {
             <FaPaperPlane className="mr-2" /> Enviar
           </button>
         </div>
-        
         <p className="text-xs text-purple-500 mt-1 text-center">
           {isLoading ? '⏳ Procesando...' : '💬 Presiona Enter para enviar'}
         </p>
