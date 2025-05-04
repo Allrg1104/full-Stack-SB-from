@@ -78,7 +78,8 @@ const ChatPrompt = () => {
     <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-purple-200 mx-auto max-w-2xl">
       {/* Título */}
       <div className="bg-white py-4 text-center border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-purple-800">Javeriana</h1>
+        <h1 className="text-2xl font-bold text-purple-800">Universidad Javeriana de Cali</h1>
+        <p className="text-purple-400 text-sm">Sistema de Navegación de Campus</p>
       </div>
 
       {/* Selector de edificio */}
@@ -110,7 +111,7 @@ const ChatPrompt = () => {
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 text-center shadow-md">
         <h2 className="text-xl font-bold flex items-center justify-center">
-          <FaRobot className="mr-2 text-purple-200" /> ChatGPT App
+          <FaRobot className="mr-2 text-purple-200" /> Necesitas ayuda?
         </h2>
       </div>
 
