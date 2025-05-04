@@ -22,7 +22,7 @@ const ChatPrompt = () => {
   const [prompt, setPrompt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState([])
-  const [edificioSeleccionado, setEdificioSeleccionado] = useState('')
+  const [edificioSeleccionado, setEdificioSeleccionado] = useState('Edificio 1')
   const conversationsEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -69,138 +69,124 @@ const ChatPrompt = () => {
   }
 
   const formatText = (text) => {
-    return text.split('\n').map((paragraph, i) => (
-      <p key={i} className="mb-2 last:mb-0">{paragraph}</p>
+    return text.split('\n').map((p, i) => (
+      <p key={i} className="mb-2">{p}</p>
     ))
   }
 
   return (
-    <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-purple-200 mx-auto max-w-2xl">
-      {/* Título */}
-      <div className="bg-white py-4 text-center border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-purple-800">Universidad Javeriana de Cali</h1>
-        <p className="text-purple-400 text-sm">Sistema de Navegación de Campus</p>
+    <div className="bg-[#F0F8FF] min-h-screen flex flex-col items-center justify-start p-4 font-sans">
+      {/* Encabezado principal */}
+      <div className="w-full max-w-6xl rounded-t-lg bg-[#003366] text-white text-center py-4 shadow-md">
+        <h1 className="text-2xl font-bold">Universidad Javeriana de Cali</h1>
+        <p className="text-sm">Sistema de Navegación de Campus</p>
       </div>
 
-      {/* Selector de edificio */}
-      <div className="px-4 py-2 bg-purple-50 border-b border-purple-200">
-        <label className="block mb-1 text-sm font-medium text-purple-700">Selecciona un edificio:</label>
-        <select
-          value={edificioSeleccionado}
-          onChange={(e) => setEdificioSeleccionado(e.target.value)}
-          className="w-full p-2 border border-purple-300 rounded-lg bg-white text-purple-800 shadow-sm"
-        >
-          <option value="">-- Selecciona un edificio --</option>
-          {edificios.map((edificio, i) => (
-            <option key={i} value={edificio}>{edificio}</option>
-          ))}
-        </select>
+      {/* Contenedor principal */}
+      <div className="w-full max-w-6xl bg-white shadow-xl rounded-b-lg flex flex-col md:flex-row overflow-hidden">
 
-        {edificioSeleccionado && (
-          <div className="mt-3">
-            <h3 className="font-semibold text-purple-800 mb-1">Salones disponibles:</h3>
-            <ul className="list-disc pl-5 text-purple-700">
-              {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
-                <li key={idx}>{salon}</li>
-              ))}
-            </ul>
+        {/* Columna izquierda - Chat */}
+        <div className="md:w-2/3 p-4 bg-gradient-to-b from-blue-50 to-white flex flex-col border-r border-blue-200">
+          {/* Header del chat */}
+          <div className="bg-blue-700 text-white p-3 rounded-md mb-4 flex items-center justify-center shadow">
+            <FaRobot className="mr-2" /> <span className="font-semibold">Asistente Virtual</span>
           </div>
-        )}
-      </div>
 
-      {/* Chat Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 text-center shadow-md">
-        <h2 className="text-xl font-bold flex items-center justify-center">
-          <FaRobot className="mr-2 text-purple-200" /> Necesitas ayuda?
-        </h2>
-      </div>
-
-      {/* Conversaciones */}
-      <div className="h-[400px] overflow-y-auto p-4 bg-gradient-to-b from-purple-50 to-white">
-        {conversations.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-600">
-            <div className="p-6 bg-purple-100 rounded-full mb-4 shadow-inner">
-              <FaRobot className="text-5xl text-purple-600" />
-            </div>
-            <p className="text-xl font-semibold text-purple-800">¡Bienvenido al Chat! 👋</p>
-            <p className="mt-2 text-purple-600">¿En qué puedo ayudarte hoy?</p>
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {conversations.map((message, index) => (
-              <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-2xl shadow-md ${
-                  message.role === 'user'
-                    ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-tr-none'
-                    : message.role === 'system'
-                      ? 'bg-red-100 text-red-700 border border-red-200'
-                      : 'bg-white text-gray-800 border border-purple-100 rounded-tl-none shadow-md'
-                }`}>
-                  <div className="flex items-center mb-1 font-medium">
-                    {message.role === 'user' ? (
-                      <>
-                        <FaUser className="mr-1 text-white" /> <span className="text-white font-bold">Tú</span>
-                      </>
-                    ) : message.role === 'system' ? (
-                      'Sistema'
-                    ) : (
-                      <>
-                        <FaRobot className="mr-1 text-purple-600" /> <span className="text-purple-800">ChatGPT</span>
-                      </>
-                    )}
-                  </div>
-                  <div className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">
-                    {formatText(message.content)}
-                  </div>
+          {/* Mensajes */}
+          <div className="flex-1 overflow-y-auto h-[350px] px-2">
+            {conversations.length === 0 ? (
+              <div className="text-center text-blue-800">
+                <div className="p-4 mb-2">
+                  <FaRobot className="text-4xl mx-auto mb-2" />
+                  <h2 className="text-xl font-bold">¡Bienvenido al Chat! 👋</h2>
+                  <p className="text-blue-600">¿En qué puedo ayudarte hoy?</p>
                 </div>
               </div>
-            ))}
+            ) : (
+              conversations.map((msg, idx) => (
+                <div key={idx} className={`my-2 flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`p-3 rounded-lg max-w-[80%] text-sm shadow ${
+                    msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' :
+                    msg.role === 'system' ? 'bg-red-100 text-red-700' :
+                    'bg-gray-100 text-gray-800 rounded-tl-none'
+                  }`}>
+                    <div className="font-semibold mb-1 flex items-center">
+                      {msg.role === 'user' && <><FaUser className="mr-1" /> Tú</>}
+                      {msg.role === 'assistant' && <><FaRobot className="mr-1 text-blue-600" /> ChatGPT</>}
+                      {msg.role === 'system' && 'Sistema'}
+                    </div>
+                    {formatText(msg.content)}
+                  </div>
+                </div>
+              ))
+            )}
+            {isLoading && (
+              <div className="text-blue-600 text-sm mt-2">Escribiendo...</div>
+            )}
             <div ref={conversationsEndRef} />
           </div>
-        )}
-        {isLoading && (
-          <div className="flex justify-start mt-4">
-            <div className="max-w-[85%] p-3 bg-white border border-purple-100 rounded-2xl rounded-tl-none shadow-md">
-              <div className="flex items-center mb-1 font-medium">
-                <FaRobot className="mr-1 text-purple-600" /> <span className="text-purple-800">ChatGPT</span>
-              </div>
-              <div className="flex space-x-3">
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
 
-      {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 bg-gradient-to-r from-purple-100 to-indigo-100 border-t border-purple-200">
-        <div className="mb-2">
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Escribe tu mensaje aquí..."
-            className="w-full p-3 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-800 resize-none shadow-inner transition-all"
-            rows="2"
-            disabled={isLoading}
-          />
+          {/* Formulario */}
+          <form onSubmit={handleSubmit} className="mt-4">
+            <textarea
+              ref={textareaRef}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              rows="2"
+              placeholder="Escribe tu mensaje aquí..."
+              disabled={isLoading}
+              className="w-full p-3 border border-blue-300 rounded-md resize-none shadow-inner"
+            />
+            <button
+              type="submit"
+              disabled={isLoading || !prompt.trim()}
+              className="mt-2 w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-md flex items-center justify-center transition disabled:opacity-50"
+            >
+              <FaPaperPlane className="mr-2" /> Enviar
+            </button>
+            <p className="text-center text-xs text-blue-600 mt-1">
+              {isLoading ? '⏳ Procesando...' : 'Presiona Enter para enviar'}
+            </p>
+          </form>
         </div>
-        <div className="flex items-center">
-          <button
-            type="submit"
-            disabled={isLoading || !prompt.trim()}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+
+        {/* Columna derecha - Navegación */}
+        <div className="md:w-1/3 p-4 bg-blue-50">
+          <h2 className="text-lg font-semibold text-blue-800 mb-2">Navegación de Campus</h2>
+
+          <label className="block text-sm font-medium text-blue-700 mb-1">Selecciona un edificio:</label>
+          <select
+            value={edificioSeleccionado}
+            onChange={(e) => setEdificioSeleccionado(e.target.value)}
+            className="w-full p-2 border border-blue-300 rounded-md mb-4 bg-white shadow-sm"
           >
-            <FaPaperPlane className="mr-2" /> Enviar
-          </button>
+            {edificios.map((e, idx) => (
+              <option key={idx} value={e}>{e}</option>
+            ))}
+          </select>
+
+          <h3 className="font-semibold text-blue-800 mb-2">Salones disponibles:</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {salonesPorEdificio[edificioSeleccionado]?.map((salon, i) => (
+              <div key={i} className="bg-white border border-blue-200 rounded-lg shadow p-2 flex flex-col items-center text-center">
+                <div className="h-20 w-full bg-gray-200 rounded mb-2 flex items-center justify-center text-gray-500 text-sm">
+                  Imagen {salon}
+                </div>
+                <span className="text-blue-700 font-medium">{salon}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 p-3 bg-white rounded-lg shadow text-sm text-gray-700">
+            <h4 className="font-bold text-blue-800 mb-1">Universidad Javeriana de Cali</h4>
+            <p>
+              Fundada en 1970, la Pontificia Universidad Javeriana de Cali es una institución de educación superior privada colombiana de tradición jesuita.
+              Comprometida con la excelencia académica y la formación integral de sus estudiantes.
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-purple-500 mt-1 text-center">
-          {isLoading ? '⏳ Procesando...' : '💬 Presiona Enter para enviar'}
-        </p>
-      </form>
+      </div>
     </div>
   )
 }
