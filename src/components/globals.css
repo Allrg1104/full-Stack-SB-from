@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --javeriana-blue: #003b71;
+  --javeriana-light-blue: #0077b6;
+  --javeriana-accent: #ffd100;
+}
+
+.cloud-shape {
+  border-radius: 15px;
+}

@@ -1,3 +1,19 @@
+/* Estilos para la Universidad Javeriana de Cali */
+:root {
+  --javeriana-blue: #003b71;
+  --javeriana-light-blue: #0077b6;
+  --javeriana-accent: #ffd100;
+  --javeriana-gray: #f5f7fa;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 #root {
   min-height: 100vh;
   display: flex;
@@ -9,16 +25,32 @@ main {
   padding-bottom: 2rem;
 }
 
-/* Estilizar elementos de texto */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.text-gradient {
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
 }
 
 /* Efectos de hover para botones */
@@ -28,44 +60,14 @@ button {
 
 button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Efectos de carga */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Estilos globales adicionales */
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-/* Contenedor principal con mejora visual */
-.min-h-screen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-size: 100% 100%;
-  background-attachment: fixed;
+  box-shadow: 0 3px 8px rgba(0, 59, 113, 0.2);
 }
 
 /* Mejoras para contraste y legibilidad */
-h1, h2, h3 {
-  color: #6b21a8;
+h1,
+h2,
+h3 {
+  color: var(--javeriana-blue);
 }
 
 p {
@@ -73,12 +75,8 @@ p {
 }
 
 /* Sombras y efectos mejorados */
-.shadow-2xl {
-  box-shadow: 0 25px 50px -12px rgba(147, 51, 234, 0.25);
-}
-
-.shadow-xl {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 59, 113, 0.1), 0 4px 6px -2px rgba(0, 59, 113, 0.05);
 }
 
 /* Transiciones suaves */
@@ -86,64 +84,58 @@ p {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Esquinas redondeadas */
-.rounded-xl {
-  border-radius: 1rem;
-}
-
-.rounded-2xl {
-  border-radius: 1.5rem;
-}
-
-/* Mejor apariencia de burbujas de chat */
-[class*="max-w-"] {
+/* Estilos específicos para la nube de ayuda */
+.cloud-shape {
   position: relative;
 }
 
-/* Efecto hover mejorado */
-.hover\:scale-\[1\.01\]:hover {
-  transform: scale(1.01);
+.cloud-shape:after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+}
+
+/* Estilos para las imágenes de los salones */
+.salon-image {
   transition: transform 0.3s ease;
 }
 
-/* Efecto de brillo para botones */
-button:not(:disabled)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  box-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.salon-image:hover {
+  transform: scale(1.05);
 }
 
-button:not(:disabled):hover::after {
-  opacity: 1;
+/* Estilos para el chat */
+.chat-message {
+  transition: all 0.2s ease;
 }
 
-/* Animaciones */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.chat-message:hover {
+  transform: translateY(-2px);
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-in;
+/* Estilos para el selector de edificios */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23003B71'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.animate-bounce {
-  animation: bounce 1s infinite;
-}
-
-/* Mejoras específicas de la aplicación */
-.chat-container {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+/* Estilos para el logo */
+.logo-container {
+  background: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 59, 113, 0.1);
 }
