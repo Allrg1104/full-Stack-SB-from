@@ -64,8 +64,7 @@ button:hover:not(:disabled) {
 }
 
 /* Mejoras para contraste y legibilidad */
-h1,
-h2,
+
 h3 {
   color: var(--javeriana-blue);
 }
