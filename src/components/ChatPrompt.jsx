@@ -4,53 +4,6 @@ import { useState, useRef, useEffect } from "react"
 import axios from "axios"
 import { FaPaperPlane, FaRobot, FaUser, FaQuestionCircle, FaTimes, FaMapMarkerAlt, FaBuilding } from "react-icons/fa"
 
-const edificios = [
-  "Edificio 1",
-  "Edificio 2",
-  "Edificio 3",
-  "Edificio 4",
-  "Edificio 5",
-  "Edificio 6",
-  "Edificio 7",
-  "Edificio 8",
-]
-
-// Modificamos la estructura para incluir imágenes de S3
-const salonesPorEdificio = {
-  "Edificio 1": [
-    { nombre: "Salón 101", imagen: "https://edificios-s3.amazonaws.com/edificio1/salon101.jpg" },
-    { nombre: "Salón 102", imagen: "https://edificios-s3.amazonaws.com/edificio1/salon102.jpg" },
-  ],
-  "Edificio 2": [
-    { nombre: "Salón 201", imagen: "https://edificios-s3.amazonaws.com/edificio2/salon201.jpg" },
-    { nombre: "Salón 202", imagen: "https://edificios-s3.amazonaws.com/edificio2/salon202.jpg" },
-  ],
-  "Edificio 3": [
-    { nombre: "Salón 301", imagen: "https://edificios-s3.amazonaws.com/edificio3/salon301.jpg" },
-    { nombre: "Salón 302", imagen: "https://edificios-s3.amazonaws.com/edificio3/salon302.jpg" },
-  ],
-  "Edificio 4": [
-    { nombre: "Salón 401", imagen: "https://edificios-s3.amazonaws.com/edificio4/salon401.jpg" },
-    { nombre: "Salón 402", imagen: "https://edificios-s3.amazonaws.com/edificio4/salon402.jpg" },
-  ],
-  "Edificio 5": [
-    { nombre: "Salón 501", imagen: "https://edificios-s3.amazonaws.com/edificio5/salon501.jpg" },
-    { nombre: "Salón 502", imagen: "https://edificios-s3.amazonaws.com/edificio5/salon502.jpg" },
-  ],
-  "Edificio 6": [
-    { nombre: "Salón 601", imagen: "https://edificios-s3.amazonaws.com/edificio6/salon601.jpg" },
-    { nombre: "Salón 602", imagen: "https://edificios-s3.amazonaws.com/edificio6/salon602.jpg" },
-  ],
-  "Edificio 7": [
-    { nombre: "Salón 701", imagen: "https://edificios-s3.amazonaws.com/edificio7/salon701.jpg" },
-    { nombre: "Salón 702", imagen: "https://edificios-s3.amazonaws.com/edificio7/salon702.jpg" },
-  ],
-  "Edificio 8": [
-    { nombre: "Salón 801", imagen: "https://edificios-s3.amazonaws.com/edificio8/salon801.jpg" },
-    { nombre: "Salón 802", imagen: "https://edificios-s3.amazonaws.com/edificio8/salon802.jpg" },
-  ],
-}
-
 const ChatPrompt = () => {
   const [prompt, setPrompt] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -60,11 +13,67 @@ const ChatPrompt = () => {
   const conversationsEndRef = useRef(null)
   const textareaRef = useRef(null)
 
+  // Estados para manejar los datos de MongoDB
+  const [edificios, setEdificios] = useState([])
+  const [salonesPorEdificio, setSalonesPorEdificio] = useState({})
+  const [cargandoEdificios, setCargandoEdificios] = useState(true)
+  const [cargandoSalones, setCargandoSalones] = useState(false)
+
+  // Función para obtener los edificios únicos
+  const obtenerEdificios = async () => {
+    try {
+      setCargandoEdificios(true)
+      const response = await axios.get("https://edificios-back.vercel.app/api/edificios")
+      const edificiosUnicos = [...new Set(response.data.map((aula) => aula.edificio))]
+      setEdificios(edificiosUnicos)
+
+      if (edificiosUnicos.length > 0) {
+        setEdificioSeleccionado(edificiosUnicos[0])
+      }
+      setCargandoEdificios(false)
+    } catch (error) {
+      console.error("Error al obtener edificios:", error)
+      setCargandoEdificios(false)
+    }
+  }
+
+  // Función para obtener los salones por edificio
+  const obtenerSalonesPorEdificio = async (edificio) => {
+    try {
+      setCargandoSalones(true)
+      const response = await axios.get(`https://edificios-back.vercel.app/api/aulas/edificio/${edificio}`)
+
+      // Crear un objeto con el formato esperado
+      const salones = response.data.map((aula) => ({
+        nombre: aula.nombre_salon,
+        imagen: aula.imagenUrl || "/placeholder.svg?height=160&width=320",
+      }))
+
+      setSalonesPorEdificio((prevState) => ({
+        ...prevState,
+        [edificio]: salones,
+      }))
+      setCargandoSalones(false)
+    } catch (error) {
+      console.error(`Error al obtener salones para ${edificio}:`, error)
+      setCargandoSalones(false)
+    }
+  }
+
   useEffect(() => {
     if (conversationsEndRef.current) {
       conversationsEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
+
+    // Cargar edificios al iniciar
+    obtenerEdificios()
   }, [conversations])
+
+  useEffect(() => {
+    if (edificioSeleccionado && !salonesPorEdificio[edificioSeleccionado]) {
+      obtenerSalonesPorEdificio(edificioSeleccionado)
+    }
+  }, [edificioSeleccionado])
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -114,9 +123,9 @@ const ChatPrompt = () => {
         <div className="bg-[#003B71] text-white rounded-lg shadow-lg p-4 flex items-center">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 overflow-hidden">
             <img
-              src="/placeholder.svg?height=64&width=64"
-              alt="Logo Universidad Javeriana"
-              className="w-14 h-14 object-contain"
+              src="https://javeriana-edificios.s3.us-east-2.amazonaws.com/logo_javeriana.jpeg"
+              alt="Logo de la universidad"
+              className="w-full h-full object-cover"
             />
           </div>
           <div>
@@ -234,42 +243,79 @@ const ChatPrompt = () => {
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#003B71] mb-2">Selecciona un edificio:</label>
-            <select
-              value={edificioSeleccionado}
-              onChange={(e) => setEdificioSeleccionado(e.target.value)}
-              className="w-full p-3 border border-blue-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {edificios.map((edificio, i) => (
-                <option key={i} value={edificio}>
-                  {edificio}
-                </option>
-              ))}
-            </select>
+            {cargandoEdificios ? (
+              <div className="w-full p-3 border border-blue-300 rounded-lg bg-white shadow-sm text-center">
+                <div className="flex justify-center space-x-2">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
+                </div>
+              </div>
+            ) : (
+              <select
+                value={edificioSeleccionado}
+                onChange={(e) => setEdificioSeleccionado(e.target.value)}
+                className="w-full p-3 border border-blue-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {edificios.map((edificio, i) => (
+                  <option key={i} value={edificio}>
+                    {edificio}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-[#003B71] mb-3 flex items-center">
               <FaMapMarkerAlt className="mr-2" /> Salones disponibles
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
-                >
-                  <div className="h-40 bg-blue-50 relative">
-                    <img
-                      src={salon.imagen || "/placeholder.svg?height=160&width=320"}
-                      alt={salon.nombre}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-3 text-center">
-                    <h4 className="font-medium text-[#003B71]">{salon.nombre}</h4>
-                  </div>
+            {cargandoSalones || !salonesPorEdificio[edificioSeleccionado] ? (
+              <div className="bg-white border border-blue-200 rounded-lg p-8 text-center">
+                <div className="flex justify-center space-x-2 mb-3">
+                  <div className="w-3 h-3 bg-blue-600 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-3 h-3 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="w-3 h-3 bg-blue-600 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.4s" }}
+                  ></div>
                 </div>
-              ))}
-            </div>
+                <p className="text-blue-600">Cargando salones...</p>
+              </div>
+            ) : salonesPorEdificio[edificioSeleccionado].length === 0 ? (
+              <div className="bg-white border border-blue-200 rounded-lg p-8 text-center">
+                <p className="text-gray-600">No hay salones disponibles para este edificio</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
+                  >
+                    <div className="h-40 bg-blue-50 relative">
+                      <img
+                        src={salon.imagen || "/placeholder.svg"}
+                        alt={salon.nombre}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-3 text-center">
+                      <h4 className="font-medium text-[#003B71]">{salon.nombre}</h4>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Leyenda Universidad Javeriana */}
@@ -343,4 +389,3 @@ const ChatPrompt = () => {
 }
 
 export default ChatPrompt
-
