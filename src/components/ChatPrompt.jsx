@@ -29,7 +29,7 @@ const ChatPrompt = () => {
       console.log("Edificio seleccionado:", edificioSeleccionado);
       console.log("Claves de salonesPorEdificio:", Object.keys(salonesPorEdificio));
 
-      const edificiosUnicos = [...new Set(response.data.data.map((aula) => aula.edificio))]
+      const edificiosUnicos = [...new Set(response.data)]
       setEdificios(edificiosUnicos)
 
       if (edificiosUnicos.length > 0) {
