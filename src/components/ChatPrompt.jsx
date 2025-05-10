@@ -72,7 +72,7 @@ const ChatPrompt = () => {
 
     // Cargar edificios al iniciar
     obtenerEdificios()
-  }, [conversations])
+  }, [])
 
   useEffect(() => {
     if (edificioSeleccionado && !salonesPorEdificio[edificioSeleccionado]) {
@@ -98,6 +98,7 @@ const ChatPrompt = () => {
       setPrompt("")
 
       const res = await axios.post("https://edificios-back.vercel.app/api/chat", { prompt })
+      //const res = await axios.post("http://localhost:5000/api/chat", { prompt })
       setConversations([...newConversations, { role: "assistant", content: res.data.response }])
     } catch (error) {
       console.error("Error:", error)
@@ -301,24 +302,26 @@ const ChatPrompt = () => {
                 <p className="text-gray-600">No hay salones disponibles para este edificio</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
-                  >
-                    <div className="h-40 bg-blue-50 relative">
-                      <img
-                        src={salon.imagen || "/placeholder.svg"}
-                        alt={salon.nombre}
-                        className="w-full h-full object-cover"
-                      />
+              <div className="max-h-[500px] overflow-y-auto pr-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {salonesPorEdificio[edificioSeleccionado].map((salon, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
+                    >
+                      <div className="h-40 bg-blue-50 relative">
+                        <img
+                          src={salon.imagen || "/placeholder.svg"}
+                          alt={salon.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-3 text-center">
+                        <h4 className="font-medium text-[#003B71]">{salon.nombre}</h4>
+                      </div>
                     </div>
-                    <div className="p-3 text-center">
-                      <h4 className="font-medium text-[#003B71]">{salon.nombre}</h4>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
