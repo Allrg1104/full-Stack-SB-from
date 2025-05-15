@@ -10,6 +10,8 @@ const ChatPrompt = () => {
   const [conversations, setConversations] = useState([])
   const [edificioSeleccionado, setEdificioSeleccionado] = useState("")
   const [showHelpCloud, setShowHelpCloud] = useState(false)
+  const [salonSeleccionado, setSalonSeleccionado] = useState(null)
+  const [mostrarModal, setMostrarModal] = useState(false)
   const conversationsEndRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -23,11 +25,11 @@ const ChatPrompt = () => {
   const obtenerEdificios = async () => {
     try {
       setCargandoEdificios(true)
-      const response = await axios.get("https://edificios-back.vercel.app/api/chat/edificios")
-      //const response = await axios.get("http://localhost:5000/api/chat/edificios")
-      console.log("Datos de aulas:", response.data);
-      console.log("Edificio seleccionado:", edificioSeleccionado);
-      console.log("Claves de salonesPorEdificio:", Object.keys(salonesPorEdificio));
+      //const response = await axios.get("https://edificios-back.vercel.app/api/chat/edificios")
+      const response = await axios.get("http://localhost:5000/api/chat/edificios")
+      console.log("Datos de aulas:", response.data)
+      console.log("Edificio seleccionado:", edificioSeleccionado)
+      console.log("Claves de salonesPorEdificio:", Object.keys(salonesPorEdificio))
 
       const edificiosUnicos = [...new Set(response.data)] //Se modifoca el dato a responder
       setEdificios(edificiosUnicos)
@@ -42,16 +44,27 @@ const ChatPrompt = () => {
     }
   }
 
-  // Función para obtener los salones por edificio
   const obtenerSalonesPorEdificio = async (edificio) => {
     try {
       setCargandoSalones(true)
-      const response = await axios.get(`https://edificios-back.vercel.app/api/chat/aulas/edificio/${edificio}`)
-      //const response = await axios.get(`http://localhost:5000/api/chat/aulas/edificio/${edificio}`)
-      // Crear un objeto con el formato esperado
+      //const response = await axios.get(`https://edificios-back.vercel.app/api/chat/aulas/edificio/${edificio}`)
+      const response = await axios.get(`http://localhost:5000/api/chat/aulas/edificio/${edificio}`)
+      // Guardar todos los datos del salón según la estructura de MongoDB
       const salones = response.data.map((aula) => ({
         nombre: aula.nombre_salon,
         imagen: aula.imagenUrl || "/placeholder.svg?height=160&width=320",
+        piso: aula.piso || "No especificado",
+        capacidad_nominal: aula.capacidad_nominal || "No especificada",
+        puestos_contados: aula.puestos_contados || "No especificados",
+        tipo_aula: aula.tipo_aula || "No especificado",
+        tipo_mesa: aula.tipo_mesa || "No especificado",
+        tipo_silla: aula.tipo_silla || "No especificado",
+        tipo_tablero: aula.tipo_tablero || "No especificado",
+        equipamiento_tecnologico: aula.equipamiento_tecnologico || "No especificado",
+        tomacorriente: aula.tomacorriente || "No especificado",
+        movilidad: aula.movilidad || "No especificado",
+        entorno: aula.entorno || "No especificado",
+        comentarios: aula.comentarios || "No hay comentarios disponibles",
       }))
 
       setSalonesPorEdificio((prevState) => ({
@@ -120,6 +133,11 @@ const ChatPrompt = () => {
         {p}
       </p>
     ))
+  }
+
+  const mostrarDetallesSalon = (salon) => {
+    setSalonSeleccionado(salon)
+    setMostrarModal(true)
   }
 
   return (
@@ -309,7 +327,10 @@ const ChatPrompt = () => {
                       key={idx}
                       className="bg-white border border-blue-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
                     >
-                      <div className="h-40 bg-blue-50 relative">
+                      <div
+                        className="h-40 bg-blue-50 relative cursor-pointer salon-image-container"
+                        onClick={() => mostrarDetallesSalon(salon)}
+                      >
                         <img
                           src={salon.imagen || "/placeholder.svg"}
                           alt={salon.nombre}
@@ -375,23 +396,92 @@ const ChatPrompt = () => {
         </div>
       </div>
 
-      {/* Estilos adicionales */}
-      <style jsx>{`
-        .cloud-shape {
-          position: relative;
-        }
-        .cloud-shape:after {
-          content: '';
-          position: absolute;
-          top: -10px;
-          right: 10px;
-          width: 0;
-          height: 0;
-          border-left: 10px solid transparent;
-          border-right: 10px solid transparent;
-          border-bottom: 10px solid white;
-        }
-      `}</style>
+      {/* Modal de detalles del salón */}
+      {mostrarModal && salonSeleccionado && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 salon-modal-overlay">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto salon-modal">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-[#003B71]">{salonSeleccionado.nombre}</h2>
+                <button
+                  onClick={() => setMostrarModal(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </div>
+
+              <div className="mb-6 rounded-lg overflow-hidden border border-blue-200 salon-image-container">
+                <img
+                  src={salonSeleccionado.imagen || "/placeholder.svg"}
+                  alt={salonSeleccionado.nombre}
+                  className="w-full h-64 object-cover"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Piso</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.piso}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Capacidad Nominal</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.capacidad_nominal}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Puestos Contados</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.puestos_contados}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Tipo de Aula</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.tipo_aula}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Tipo de Mesa</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.tipo_mesa}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Tipo de Silla</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.tipo_silla}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Tipo de Tablero</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.tipo_tablero}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Equipamiento Tecnológico</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.equipamiento_tecnologico}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Tomacorriente</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.tomacorriente}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Movilidad</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.movilidad}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Entorno</h3>
+                  <p className="salon-detail-value">{salonSeleccionado.entorno}</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg salon-detail-card">
+                  <h3 className="salon-detail-title">Edificio</h3>
+                  <p className="salon-detail-value">{edificioSeleccionado}</p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg mb-6 salon-detail-card">
+                <h3 className="salon-detail-title">Comentarios</h3>
+                <p className="salon-detail-value">{salonSeleccionado.comentarios}</p>
+              </div>
+
+              <button onClick={() => setMostrarModal(false)} className="w-full action-button">
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

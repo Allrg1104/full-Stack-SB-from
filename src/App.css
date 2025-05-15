@@ -138,3 +138,78 @@ select {
   justify-content: center;
   box-shadow: 0 4px 6px rgba(0, 59, 113, 0.1);
 }
+
+/* Estilos para el modal de detalles del salón */
+.salon-modal-overlay {
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(3px);
+}
+
+.salon-modal {
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.salon-detail-card {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 59, 113, 0.1);
+}
+
+.salon-detail-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 59, 113, 0.1);
+}
+
+.salon-detail-title {
+  color: var(--javeriana-blue);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.salon-detail-value {
+  color: #4a5568;
+}
+
+.salon-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.salon-image-container img {
+  transition: transform 0.5s ease;
+}
+
+.salon-image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Estilos para los botones de acción */
+.action-button {
+  background-color: var(--javeriana-blue);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: var(--javeriana-light-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 59, 113, 0.2);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
