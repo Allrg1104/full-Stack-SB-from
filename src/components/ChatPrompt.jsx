@@ -25,8 +25,8 @@ const ChatPrompt = () => {
   const obtenerEdificios = async () => {
     try {
       setCargandoEdificios(true)
-      //const response = await axios.get("https://edificios-back.vercel.app/api/chat/edificios")
-      const response = await axios.get("http://localhost:5000/api/chat/edificios")
+      const response = await axios.get("https://edificios-back.vercel.app/api/chat/edificios")
+      //const response = await axios.get("http://localhost:5000/api/chat/edificios")
       console.log("Datos de aulas:", response.data)
       console.log("Edificio seleccionado:", edificioSeleccionado)
       console.log("Claves de salonesPorEdificio:", Object.keys(salonesPorEdificio))
@@ -47,8 +47,8 @@ const ChatPrompt = () => {
   const obtenerSalonesPorEdificio = async (edificio) => {
     try {
       setCargandoSalones(true)
-      //const response = await axios.get(`https://edificios-back.vercel.app/api/chat/aulas/edificio/${edificio}`)
-      const response = await axios.get(`http://localhost:5000/api/chat/aulas/edificio/${edificio}`)
+      const response = await axios.get(`https://edificios-back.vercel.app/api/chat/aulas/edificio/${edificio}`)
+      //const response = await axios.get(`http://localhost:5000/api/chat/aulas/edificio/${edificio}`)
       // Guardar todos los datos del salón según la estructura de MongoDB
       const salones = response.data.map((aula) => ({
         nombre: aula.nombre_salon,
